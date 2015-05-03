@@ -1,0 +1,20 @@
+{
+  "name": "ChatApp",
+  "version": "1.0.0",
+  "description": "MEAN Stack Web Chat",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bishopc94/MEANChatApp"
+  },
+  "author": "Christopher Bishop",
+  "license": "MIT",
+  "dependencies": {
+    "bower": "^1.4.1",
+    "debug": "^2.1.3",
+    "ejs": "^2.3.1",
+    "express": "^4.12.3",
+    "mongoose": "^4.0.2",
+    "socket.io": "^1.3.5"
+  }
+}
