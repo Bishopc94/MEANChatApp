@@ -1,17 +1,12 @@
 // Declare which node modules are going to be used
-var express = require('express');
-var path = require('path');
-var mongoose = require('mongoose');
-var app = express();
-
-
-
+var express = require('express'),
+     path = require('path'),
+     mongoose = require('mongoose'),
+     logger = require('morgan'),
+     app = require('express')();
 
 // Use this file to route
- //******* Write this
 var routes = require('./modules/routes');
-
- //******* Write this
 
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
@@ -21,7 +16,7 @@ var port = process.env.PORT || 3000;
 // view engine setup
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
-
+app.use(logger('dev'));
 // Express serves files in directories specified below
 // this is so our server knows where to look for certain files
 app.set('views', path.join(__dirname, 'app/views'));
@@ -33,10 +28,7 @@ app.use('/', routes);
 
 // Listen on the port we set 
 server.listen(port);
-
-
 console.log('Server started on ' + port);
-
 
 // Error handling
 app.use(function(req, res, next) {
@@ -50,48 +42,20 @@ app.use(function(err, req, res, next) {
 });
 // **************************************************************\\
 
-
-var db = mongoose.connect('mongodb://localhost/chatApp');
-var dbCollection = db.collections;
-var Schema = mongoose.Schema;
-
-
-
-
- //******* Write this
-
-
-// Create user Schema
-var usersSchema = new Schema({
-  nickname: String,
-  ip: String
-});
+var db = require('./modules/db');
 // Register the user as a mongoose model which holds our schema
-var user = mongoose.model('Users', usersSchema);
-
-// Create message schema
-var messagesSchema = new Schema({
-  nickname: String,
-  date: String,
-  text: String
-});
+var user = mongoose.model('Users', db.user);
 // Register the message as a mongoose model which holds our schema
-var message = mongoose.model('Messages', messagesSchema);
+var message = mongoose.model('Messages', db.message);
 
-
-
-var users;
-var numUsers=1;
+var numUsers=0;
 var numMessages=0;
 
-io.sockets.on('connection', function(socket) {
+io.on('connection', function (socket) {
 
- //******* Write this
-
-
-  socket.on('setNickname', function(nickname){
+  socket.on('setNickname', function(data){
     users = new user({
-       nickname: nickname,
+       nickname: data,
        ip: socket.handshake.address
     });
     
@@ -104,11 +68,9 @@ io.sockets.on('connection', function(socket) {
     });
     
     numUsers++;
-    socket.broadcast.emit('join', users);
+    socket.broadcast.emit('join', data);
     
   });
-  
-  
   
   socket.on('sendMessage', function(data) {
     
@@ -129,13 +91,5 @@ io.sockets.on('connection', function(socket) {
     numMessages++;
     socket.broadcast.emit('reciveMessage', newMessage);
   });
-
-  
-  
-  
-  
-  
-  
-  
 });
 module.exports = app;
